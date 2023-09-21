@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Author;
 use App\Models\Book;
+use App\Models\BorrowLog;
+use App\Models\User;
 
 class BooksSeeder extends Seeder
 {
@@ -20,9 +21,14 @@ class BooksSeeder extends Seeder
         $author3 = Author::create(['name'=>'Aam Amirudin']);
 
         //SAMPLE BUKU   
-        $book = Book::create(['title'=>'Kupinang Engkau Dengan Hamdalah', 'amount'=>3, 'author_id'=>$author1->id]);
-        $book = Book::create(['title'=>'Jalan Cinta Para Pejuang', 'amount'=>2, 'author_id'=>$author2->id]);
-        $book = Book::create(['title'=>'Membingkai Surga Dalam Rumah Tangga', 'amount'=>3, 'author_id'=>$author3->id]);
-        $book = Book::create(['title'=>'Cinta & Seks Rumah Tangga Muslim', 'amount'=>4, 'author_id'=>$author3->id]);
+        $book1 = Book::create(['title'=>'Kupinang Engkau Dengan Hamdalah', 'amount'=>3, 'author_id'=>$author1->id]);
+        $book2 = Book::create(['title'=>'Jalan Cinta Para Pejuang', 'amount'=>2, 'author_id'=>$author2->id]);
+        $book3 = Book::create(['title'=>'Membingkai Surga Dalam Rumah Tangga', 'amount'=>3, 'author_id'=>$author3->id]);
+
+        // Sample peminjaman buku
+        $member = User::where('email', 'member@gmail.com')->first();
+        BorrowLog::create(['user_id' => $member->id, 'book_id'=>$book1->id, 'is_returned' => 0]);
+        BorrowLog::create(['user_id' => $member->id, 'book_id'=>$book2->id, 'is_returned' => 0]);
+        BorrowLog::create(['user_id' => $member->id, 'book_id'=>$book3->id, 'is_returned' => 1]);
     }
 }

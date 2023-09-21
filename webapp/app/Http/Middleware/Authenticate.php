@@ -9,14 +9,19 @@ use Illuminate\Support\Facades\Auth;
 
 class Authenticate extends Middleware
 {
+    /**
+     * Get the path the user should be redirected to when they are not authenticated.
+     */
+    protected function redirectTo(Request $request): ?string
+    {
+        return $request->expectsJson() ? null : route('login');
+    }
+
     public function handle($request, Closure $next, ...$guards)
     {
-        if (Auth::guard($guards)->check()) {
-            // Pengguna sudah terautentikasi, lanjutkan ke permintaan berikutnya
-            return $next($request);
-        }
-
-        // Pengguna belum terautentikasi, arahkan mereka ke halaman login
-        return redirect('/login');
+        // if(Auth::guard($guards)->check()){
+        //     return redirect('/home');
+        // }
+        return $next($request);
     }
 }

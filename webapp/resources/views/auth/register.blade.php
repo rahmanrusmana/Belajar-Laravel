@@ -59,6 +59,18 @@
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                             </div>
+                        </div> 
+
+                        <div class="row mb-3">
+                            <p class="col-md-4"></p>
+                            <div class="col-md-6">
+                                <div class="form-group{{ $errors->has('g-recaptcha-response') ? ' has-error' : '' }}">
+                                    <div class="col-md-offset-4 col-md-6">
+                                        {!! app('captcha')->display() !!}
+                                        {!! $errors->first('g-recaptcha-response', '<p class="help-block">:message</p>') !!}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row mb-0">
@@ -74,4 +86,8 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script src="https://www.google.com/recaptcha/api.js"></script>
 @endsection
