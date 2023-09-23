@@ -28,237 +28,200 @@
     <link href="/css/selectize.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.17.0/font/bootstrap-icons.css" rel="stylesheet">
-    {{-- @vite(['resources/css/app.css','resources/js/app.js']) --}}
-    <style>
-        /* Gaya navbar */
-
-        /* Logo di tengah */
-        .navbar-logo {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-    </style>
 </head>
 
 <body>
-    {{-- NAVBAR USER --}}
-        <nav class="navbar navbar-expand-lg shadow-sm">
-            <div class="container">
-                <!-- Logo di tengah -->
-                {{-- <a class="navbar-logo" href="#">
-                    <img src="https://o.remove.bg/downloads/4d24f093-c9a4-4eee-b9f5-ea92f318648b/logo1-removebg-preview.png" alt="Admin Logo" width="60">
-                </a> --}}
-                <!-- Menu di sebelah kiri menggunakan dropdown -->
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link " href="#" id="menuDropdown" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"
-                                fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"
+    <!-- component -->
+    <div class="h-screen w-full bg-white relative flex overflow-hidden">
+
+        <!-- Sidebar -->
+        <aside class="h-full w-16 flex flex-col space-y-5 items-center justify-center relative bg-gray-800 text-white">
+            <!-- Profile -->
+            <div
+                class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                <a href="{{ url('/') }}">
+                    <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" />
+                        <polyline points="5 12 3 12 12 3 21 12 19 12" />
+                        <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                        <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+                    </svg>
+                </a>
+            </div>
+
+            @if (Auth::check())
+                <div
+                    class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                    <a href="{{ url('/home') }}">
+                        <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" />
+                            <circle cx="12" cy="13" r="2" />
+                            <line x1="13.45" y1="11.55" x2="15.5" y2="9.5" />
+                            <path d="M6.4 20a9 9 0 1 1 11.2 0Z" />
+                        </svg>
+                    </a>
+                </div>
+
+                @role('admin')
+                    <div class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                        <a class="" href="{{ route('authors.index') }}">
+                            <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                                 stroke-linejoin="round">
-                                <path d="M17 9.5H3M21 4.5H3M21 14.5H3M17 19.5H3" />
+                                <path stroke="none" d="M0 0h24v24H0z" />
+                                <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
+                                <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
                             </svg>
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="menuDropdown">
-                            <a class="dropdown-item" href="{{ url('/') }}"><svg xmlns="http://www.w3.org/2000/svg"
-                                    width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 9v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9" />
-                                    <path d="M9 22V12h6v10M2 10.6L12 2l10 8.6" />
-                                </svg> Home</a>
-                            @if (Auth::check())
-                                <a class="dropdown-item" href="{{ url('/home') }}"><svg xmlns="http://www.w3.org/2000/svg"
-                                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5" />
-                                        <path
-                                            d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 002-2v-6l-3.4-6.9A2 2 0 0016.8 4H7.2a2 2 0 00-1.8 1.1z" />
-                                    </svg> Dashboard</a>
-                            @endif
-                            @role('admin')
-                                <a class="dropdown-item" href="{{ route('authors.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon></svg> Penulis
-                                </a>
-                                <a class="dropdown-item" href="{{ route('books.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Buku
-                                </a>
-                                <a class="dropdown-item" href="{{ route('members.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Member
-                                </a>
-                                <a class="dropdown-item" href="{{ route('statistics.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Peminjam
-                                </a>
-                            @endrole
-                        </div>
-                    </li>
-                </ul>
-                <!-- Profil admin di sebelah kanan -->
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        @guest
-                            @if (Route::has('login'))
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                        </li>
-                        @endif
-                        @if (Route::has('register'))
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                            </li>
-                        @endif
-                    @else
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ Auth::user()->name }}
-                            </a>
+                    </div>
 
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                {{-- <li><a href="{{ url('/settings/password') }}"><i class="fa fa-btn fa-lock"></i> Ubah Password</a></li> --}}
-                                @if (auth()->check())
-                                    <a class="dropdown-item" href="{{ url('/settings/profile') }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M5.52 19c.64-2.2 1.84-3 3.22-3h6.52c1.38 0 2.58.8 3.22 3" />
-                                            <circle cx="12" cy="10" r="3" />
-                                            <circle cx="12" cy="12" r="10" />
-                                        </svg> Profil</a>
-                                @endif
-                                <a class="dropdown-item" href="{{ url('/settings/password') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="11" width="18" height="11" rx="2"
-                                            ry="2"></rect>
-                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                    </svg> Ubah Password
-                                </a>
-                                <a class="dropdown-item" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault();
-                                             document.getElementById('logout-form').submit();">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M10 3H6a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h4M16 17l5-5-5-5M19.8 12H9" />
-                                    </svg> {{ __(' Logout') }}
-                                </a>
-
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                    @csrf
-                                </form>
-                            </div>
-                        </li>
-                    @endguest
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <main class="py-4">
-            @include('layouts._flash')
-            @yield('content')
-        </main>
-
-    {{-- @role('admin')
-        <div id="app">
-            <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-                <div class="container">
-                    <a class="navbar-brand" href="{{ url('/') }}">
-                        {{ config('app.name', 'Laravel') }}
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-
-
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <!-- Left Side Of Navbar -->
-                        <a class="navbar-brand" href="{{ url('/') }}">
-                            {{ config('app.name1', 'Home') }}
+                    <div
+                        class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                        <a class="" href="{{ route('books.index') }}">
+                            <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" />
+                                <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18" />
+                                <line x1="13" y1="8" x2="15" y2="8" />
+                                <line x1="13" y1="12" x2="15" y2="12" />
+                            </svg>
                         </a>
-                        @if (Auth::check())
-                            <a class="navbar-brand" href="{{ url('/home') }}">
-                                {{ config('app.name1', 'Dashboard') }}
-                            </a>
+                    </div>
+
+                    <div
+                        class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                        <a class="" href="{{ route('members.index') }}">
+                            <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div
+                        class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                        <a class="" href="{{ route('statistics.index') }}">
+                            <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" />
+                                <path d="M8 13.5v-8a1.5 1.5 0 0 1 3 0v6.5m0 -6.5v-2a1.5 1.5 0 0 1 3 0v8.5m0 -6.5a1.5 1.5 0 0 1 3 0v6.5m0 -4.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2a7 6 0 0 1 -5 -3l-2.7 -5.25a1.4 1.4 0 0 1 2.75 -2l.9 1.75" />
+                            </svg>
+                        </a>
+                    </div>
+                @endrole
+
+                <div
+                    class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                    <a href="{{ url('/settings/password') }}">
+                        <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" />
+                            <path
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </a>
+                </div>
+
+                <div
+                    class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-gray-500  hover:duration-300 hover:ease-linear focus:bg-gray-500">
+                    <a href="{{ route('logout') }}"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <svg class="h-8 w-8 text-white" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" />
+                            <path
+                                d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                            <path d="M7 12h14l-3 -3m0 6l3 -3" />
+                        </svg>
+                    </a>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </div>
+            @endif
 
 
-                            @role('admin')
-                                <a class="navbar-brand" href="{{ route('authors.index') }}">
-                                    {{ config('app.name2', 'Penulis') }}
-                                </a>
-                                <a class="navbar-brand" href="{{ route('books.index') }}">
-                                    {{ config('app.name3', 'Buku') }}
-                                </a>
-                                <a class="navbar-brand" href="{{ route('members.index') }}">
-                                    {{ config('app.name4', 'Member') }}
-                                </a>
-                                <a class="navbar-brand" href="{{ route('statistics.index') }}">
-                                    {{ config('app.name5', 'Peminjam') }}
-                                </a>
-                            @endrole
-                            @if (auth()->check())
-                                <a class="navbar-brand" href="{{ url('/settings/profile') }}">
-                                    {{ config('app.name4', 'Profil') }}
-                                </a>
-                            @endif
-                        @endif
+        </aside>
 
-                        <!-- Right Side Of Navbar -->
-                        <ul class="navbar-nav ms-auto">
-                            <!-- Authentication Links -->
-                            @guest
+
+        {{-- Login & Register --}}
+        <div class="w-full h-full flex flex-col justify-between">
+            <!-- Header -->
+            <header class="h-16 w-full flex items-center relative justify-end px-5 space-x-10 bg-gray-800">
+                <!-- Informação -->
+                <div class="flex flex-shrink-0 items-center space-x-4 text-white">
+
+                    <!-- Texto -->
+                    <div class="flex flex-col items-end ">
+                        @guest
+                            <div class="flex">
                                 @if (Route::has('login'))
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                    </li>
+                                    <a class="w-1/2 text-white font-bold" href="{{ route('login') }}">
+                                        Login
+                                    </a>
                                 @endif
                                 @if (Route::has('register'))
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                    </li>
-                                @endif
-                            @else
-                                <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        {{ Auth::user()->name }}
+                                    <a class="w-1/2 text-white font-bold" href="{{ route('register') }}">
+                                        Register
                                     </a>
+                                @endif
+                            </div>
+                        @else
+                            <!-- Nome -->
+                            <div class="flex">
+                                <div class="">
+                                    <div class="text-md font-medium ">{{ Auth::user()->name }}</div>
+                                    <!-- Título -->
+                                    <div class="text-sm font-regular">{{ Auth::user()->email }}</div>
+                                </div>
 
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        {{-- <li><a href="{{ url('/settings/password') }}"><i class="fa fa-btn fa-lock"></i> Ubah Password</a></li> --}}
 
-                                        {{-- <a class="dropdown-item" href="{{ route('logout') }}"
-                                            onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                            {{ __('Logout') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ url('/settings/password') }}">
-                                            Ubah Password
-                                        </a>
+                                <!-- Foto -->
+                                <div class="">
+                                    <div
+                                        class="h-10 w-10 rounded-full cursor-pointer bg-gray-200 border-2 border-blue-400 ">
+                                        <a href="{{ url('/settings/profile') }}"><img
+                                                src="https://i.pinimg.com/originals/c6/e9/ed/c6e9ed167165ca99c4d428426e256fae.png"
+                                                alt=""></a>
+                                    </div>
+                                </div>
+                            </div>
 
-                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                            class="d-none">
-                                            @csrf
-                                        </form> --}}
-                                    {{-- </div>
-                                </li>
-                            @endguest
-                        </ul>
+                        @endguest
                     </div>
+
+
                 </div>
-            </nav>
+            </header>
 
-            <main class="py-4">
-                @include('layouts._flash')
-                @yield('content')
+
+
+            <!-- Main -->
+            <main class="max-w-full h-full flex relative overflow-y-hidden">
+                <!-- Container -->
+                <div
+                    class="h-full w-full m-4  items-start justify-start rounded-tl grid-flow-col auto-cols-max gap-4 overflow-y-scroll">
+                    <!-- Container -->
+
+                    <main class="py-4">
+                        @include('layouts._flash')
+                        @yield('content')
+                    </main>
+                </div>
             </main>
-        @endrole --}}
+        </div>
 
-        
+    </div>
     </div>
 
     <script src="/js/jquery-3.7.1.min.js"></script>

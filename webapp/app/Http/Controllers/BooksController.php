@@ -301,7 +301,7 @@ class BooksController extends Controller
 
     private function exportPdf($book = null)
     {
-        -$pdf = Pdf::loadView('pdf.books', compact('book'));
+        $pdf = Pdf::loadView('pdf.books', compact('book'));
         return $pdf->download('buku.pdf');
     }
 
