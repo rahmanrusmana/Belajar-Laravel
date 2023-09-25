@@ -180,9 +180,9 @@
                             <!-- Nome -->
                             <div class="flex">
                                 <div class="">
-                                    <div class="text-md font-medium ">{{ Auth::user()->name }}</div>
+                                    <div class="text-md font-medium text-end">{{ Auth::user()->name }}  </div>
                                     <!-- Título -->
-                                    <div class="text-sm font-regular">{{ Auth::user()->email }}</div>
+                                    <div class="text-sm font-regular">{{ Auth::user()->email }}  </div>
                                 </div>
 
 
