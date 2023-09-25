@@ -16,7 +16,7 @@
                                         src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/lotus.webp"
                                         alt="logo" />
                                     <h4 class="mb-12 mt-1 pb-1 text-xl font-semibold">
-                                        Masukkan Informasi Login Anda
+                                        Reset Password
                                     </h4>
                                 </div>
                                 @if (session('status'))

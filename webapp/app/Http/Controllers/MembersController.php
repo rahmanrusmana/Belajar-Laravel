@@ -25,9 +25,6 @@ class MembersController extends Controller
         if ($request->ajax()) {
             $members = Role::where('name', 'member')->first()->users;
             return Datatables::of($members)
-                // ->addColumn('name', function ($member) {
-                //     return '<a href="' . route('members.show', $member->id) . '">' . $member->name . '</a>';
-                // })
 
                 ->addColumn('name', function ($member) {
                     return view('datatable._adminMemberName', [
@@ -53,17 +50,11 @@ class MembersController extends Controller
         return view('members.index', compact('html'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('members.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreMemberRequest $request)
     {
         $password = Str::random(6);
@@ -88,27 +79,18 @@ class MembersController extends Controller
         return redirect()->route('members.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $member = User::find($id);
         return view('members.show', compact('member'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $member = User::find($id);
         return view('members.edit')->with(compact('member'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateMemberRequest $request, $id)
     {
         $member = User::find($id);
@@ -120,9 +102,6 @@ class MembersController extends Controller
         return redirect()->route('members.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $member = User::find($id);

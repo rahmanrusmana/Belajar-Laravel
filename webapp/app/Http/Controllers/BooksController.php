@@ -26,12 +26,8 @@ use Illuminate\Http\Request;
 
 class BooksController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request, Builder $htmlBuilder)
     {
-        //
         if ($request->ajax()) {
             $books = Book::with('author');
             return DataTables::of($books)
@@ -55,47 +51,23 @@ class BooksController extends Controller
         return view('books.index')->with(compact('html'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
         return view('books.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(Request $request)
     public function store(StoreBookRequest $request)
     {
-        //
-        // $this->validate($request, [
-        //     'title' => 'required|unique:books,title',
-        //     'author_id' => 'required|exists:authors,id',
-        //     'amount' => 'required|numeric',
-        //     'cover' => 'nullable|image|max:2048'
-        // ]);
-
         $book = Book::create($request->except('cover'));
 
-        // isi field cover jika ada cover yang di upload
         if ($request->hasFile('cover')) {
-            // mengambil file yang di upload
             $uploaded_cover = $request->file('cover');
-
-            // mengambil extension file
             $exetension = $uploaded_cover->getClientOriginalExtension();
-
-            // membuat nama file random berikut eztensionnya
             $filename = md5(time()) . '.' . $exetension;
 
-            // menyimpan cover ke public/img
             $destinationPath = public_path() . DIRECTORY_SEPARATOR . 'img';
             $uploaded_cover->move($destinationPath, $filename);
 
-            // mengisi field di book dengan filename yang baru di buat
             $book->cover = $filename;
             $book->save();
         } else {
@@ -115,56 +87,36 @@ class BooksController extends Controller
         return redirect()->route('books.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(string $id)
     {
-        //
+
         $book = Book::find($id);
         return view('books.edit')->with(compact('book'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(Request $request, string $id)
+
     public function update(UpdateBookRequest $request, $id)
     {
-        // 
-        // $this->validate($request, [
-        //     'title' => 'required|unique:books,title,'. $id,
-        //     'author_id' => 'required|exists:authors,id',
-        //     'amount' => 'required|numeric',
-        //     'cover' => 'nullable|image|max:2048'
-        // ]);
-
         $book = Book::find($id);
-        // $book->update($request->all());
         if (!$book->update($request->all())) return redirect()->back();
 
         if ($request->hasFile('cover')) {
-            // mengambil cover yang di upload berikut extencion
             $filename = null;
             $uploaded_cover = $request->file('cover');
             $exetension = $uploaded_cover->getClientOriginalExtension();
 
-            // membuat file random  dengan extencion
             $filename = md5(time()) . '.' . $exetension;
             $destinationPath = public_path() . DIRECTORY_SEPARATOR . 'img';
 
-            // memindahkan file ke folder public/img
             $uploaded_cover->move($destinationPath, $filename);
 
-            // hapus cover lama jika ada
             if ($book->cover) {
                 $old_cover =  $book->cover;
                 $filepath = public_path() . DIRECTORY_SEPARATOR . 'img'
@@ -189,9 +141,7 @@ class BooksController extends Controller
         return redirect()->route('books.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Request $request, string $id)
     {
         //
@@ -227,30 +177,34 @@ class BooksController extends Controller
 
     public function borrow($id)
     {
-        try {
-            $book = Book::findOrFail($id);
-            // BorrowLog::create([
-            //     'user_id' => Auth::user()->id,
-            //     'book_id' => $id
-            // ]);
-            Auth::user()->borrow($book);
-            Session::flash("flash_notification", [
-                "level" => "success",
-                "message" => "Berhasil meminjam $book->title"
-            ]);
-        } catch (BookException $e) {
-            Session::flash("flash_notification", [
-                "level" => "danger",
-                "message" => $e->getMessage()
-            ]);
-        } catch (ModelNotFoundException $e) {
-            Session::flash("flash_notification", [
-                "level" => "danger",
-                "message" => "Buku tidak ditemukan."
-            ]);
-        }
+        if (Auth::user() != null) {
+            try {
+                $book = Book::findOrFail($id);
+                Auth::user()->borrow($book);
+                Session::flash("flash_notification", [
+                    "level" => "success",
+                    "message" => "Berhasil meminjam $book->title"
+                ]);
+            } catch (BookException $e) {
+                Session::flash("flash_notification", [
+                    "level" => "danger",
+                    "message" => $e->getMessage()
+                ]);
+            } catch (ModelNotFoundException $e) {
+                Session::flash("flash_notification", [
+                    "level" => "danger",
+                    "message" => "Buku tidak ditemukan."
+                ]);
+            }
 
-        return redirect('/');
+            return redirect('/');
+        } else {
+            Session::flash("flash_notification", [
+                "level" => "warning",
+                "message" => "Mohon Login Terlebih Dahulu"
+            ]);
+            return redirect('/login');
+        }
     }
 
     public function returnBack($book_id)
@@ -296,7 +250,6 @@ class BooksController extends Controller
         elseif ($request->get('type') == 'pdf') {
             return $this->exportPdf($books);
         }
-        // return Excel::download(new BookExport($books), 'data_buku.xlsx');
     }
 
     private function exportPdf($book = null)
@@ -312,48 +265,32 @@ class BooksController extends Controller
 
     public function importExcel(Request $request)
     {
-        // validasi untuk memastikan file yang diupload adalah excel
         $this->validate($request, ['excel' => 'required|mimes:xls,xlsx']);
-        // ambil file yang baru diupload
         $excel = $request->file('excel');
-        // baca sheet pertama
         $excels = Excel::toArray(new BooksImport(), $excel)[0];
-        // rule untuk validasi setiap row pada file excel
         $rowRules = [
             'judul' => 'required',
             'penulis' => 'required',
             'jumlah' => 'required'
         ];
-        // Catat semua id buku baru
-        // ID ini kita butuhkan untuk menghitung total buku yang berhasil diimport
+
         $books_id = [];
-        // looping setiap baris, mulai dari baris ke 2 (karena baris ke 1 adalah nama kolom)
         foreach ($excels as $row) {
-            // Membuat validasi untuk row di excel
-            // Disini kita ubah baris yang sedang di proses menjadi array
             $validator = Validator::make($row, $rowRules);
-            // Skip baris ini jika tidak valid, langsung ke baris selanjutnya
             if ($validator->fails()) continue;
-            // Syntax dibawah dieksekusi jika baris excel ini valid
-            // Cek apakah Penulis sudah terdaftar di database
             $author = Author::where('name', $row['penulis'])->first();
-            // buat penulis jika belum ada
             if (!$author) {
                 $author = Author::create(['name' => $row['penulis']]);
             }
-            // buat buku baru
             $book = Book::create([
                 'title' => $row['judul'],
                 'author_id' => $author->id,
                 'amount' => $row['jumlah']
             ]);
-            // catat id dari buku yang baru dibuat
             array_push($books_id, $book->id);
         }
 
-        // Ambil semua buku yang baru dibuat
         $books = Book::whereIn('id', $books_id)->get();
-        // redirect ke form jika tidak ada buku yang berhasil diimport
         if ($books->count() == 0) {
             Session::flash("flash_notification", [
                 "level" => "danger",
@@ -361,13 +298,11 @@ class BooksController extends Controller
             ]);
             return redirect()->back();
         }
-        // set feedback
         Session::flash("flash_notification", [
             "level" => "success",
             "message" => "Berhasil mengimport " . $books->count() . " buku."
         ]);
-        // Tampilkan index buku
-        // return redirect()->route('books.index');
+
         return view('books.import-review')->with(compact('books'));
 
         return $excels;

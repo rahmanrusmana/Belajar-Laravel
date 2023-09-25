@@ -7,6 +7,7 @@ use Yajra\DataTables\Html\Builder;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Controller;
 
 class AuthorsController extends Controller
 {
@@ -28,23 +29,15 @@ class AuthorsController extends Controller
         $html = $htmlBuilder
             ->addColumn(['data' => 'name', 'name'=>'name', 'title'=>'Nama'])
             ->addColumn(['data' => 'action', 'name'=>'action', 'title'=>'', 'orderable'=>false, '\searchable'=>false]);
-            
-        return view('authors.index')->with(compact('html'));
-       
 
+        return view('authors.index')->with(compact('html'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('authors.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $this->validate($request, ['name' => 'required|unique:authors']);
@@ -56,17 +49,13 @@ class AuthorsController extends Controller
         return redirect()->route('authors.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit($id)
     {
         //
@@ -74,9 +63,6 @@ class AuthorsController extends Controller
         return view('authors.edit') -> with(compact('author'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         //
@@ -90,13 +76,8 @@ class AuthorsController extends Controller
         return redirect()->route('authors.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        //
-        // Author::destroy($id);
         if (!Author::destroy($id)) return redirect()->back();
 
         Session::flash("flash_notification", [

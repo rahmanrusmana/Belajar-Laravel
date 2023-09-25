@@ -11,14 +11,13 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = ['title', 'author_id', 'amount'];
-
+    
     public static function boot()
     {
         parent::boot();
 
-        self::updating(function($book)
-        {
-            if ($book -> amount < $book -> borrowed) {
+        self::updating(function ($book) {
+            if ($book->amount < $book->borrowed) {
                 Session::flash("flash_notification", [
                     "level" => "danger",
                     "message" => "Jumlah Buku $book->title Harus Lebih Dari " . $book->borrowed
@@ -27,9 +26,8 @@ class Book extends Model
             }
         });
 
-        self::deleting(function($book)
-        {
-            if ($book -> borrowLogs() -> count() > 0 ) {
+        self::deleting(function ($book) {
+            if ($book->borrowLogs()->count() > 0) {
                 Session::flash("flash_notification", [
                     "level" => "danger",
                     "massage" => "Buku $book->title Sudah Pernah Di Pinjam"
@@ -41,10 +39,11 @@ class Book extends Model
 
     public function getBorrowedAttribute()
     {
-        return $this->borrowLogs() -> borrowed() ->count();
+        return $this->borrowLogs()->borrowed()->count();
     }
 
-    public function author() {
+    public function author()
+    {
         return $this->belongsTo(Author::class);
     }
 
@@ -59,4 +58,4 @@ class Book extends Model
         $stock = $this->amount - $borrowed;
         return $stock;
     }
-    }
+}
