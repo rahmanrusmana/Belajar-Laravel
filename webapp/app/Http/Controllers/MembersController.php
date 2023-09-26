@@ -17,9 +17,7 @@ use Illuminate\Support\HtmlString;
 
 class MembersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index(Request $request, Builder $htmlBuilder)
     {
         if ($request->ajax()) {

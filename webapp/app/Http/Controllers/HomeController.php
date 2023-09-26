@@ -10,21 +10,12 @@ use App\Models\Author;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware(Authenticate::class);
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
+
     public function index()
     {
         if (Laratrust::hasRole('admin')) return $this->adminDashboard();
@@ -40,7 +31,6 @@ class HomeController extends Controller
             array_push($books, $author->books->count());
         }
         return view('dashboard.admin', compact('authors', 'books'));
-        // return view('dashboard.admin');
     }
     protected function memberDashboard()
     {

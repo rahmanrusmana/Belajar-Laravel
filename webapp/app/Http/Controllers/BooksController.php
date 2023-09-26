@@ -21,6 +21,8 @@ use App\Imports\BooksImport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Author;
+use App\Http\Requests\ExportRequest;
+use App\Http\Requests\ImportExcelRequest;
 
 use Illuminate\Http\Request;
 
@@ -58,41 +60,34 @@ class BooksController extends Controller
 
     public function store(StoreBookRequest $request)
     {
-        $book = Book::create($request->except('cover'));
+        $bookData = $request->except('cover');
 
         if ($request->hasFile('cover')) {
-            $uploaded_cover = $request->file('cover');
-            $exetension = $uploaded_cover->getClientOriginalExtension();
-            $filename = md5(time()) . '.' . $exetension;
+            $uploadedCover = $request->file('cover');
+            $extension = $uploadedCover->getClientOriginalExtension();
+            $filename = md5(time()) . '.' . $extension;
 
-            $destinationPath = public_path() . DIRECTORY_SEPARATOR . 'img';
-            $uploaded_cover->move($destinationPath, $filename);
+            $destinationPath = public_path('img');
+            $uploadedCover->move($destinationPath, $filename);
 
-            $book->cover = $filename;
-            $book->save();
-        } else {
-            Session::flash("flash_notification", [
-                'level' => 'success',
-                'message' => "Berhasil menyimpan $book->title tanpa cover"
-            ]);
-
-            return redirect()->route('books.index');
+            $bookData['cover'] = $filename;
         }
 
-        Session::flash("flash_notification", [
+        $book = Book::create($bookData);
+
+        $message = "Berhasil menyimpan $book->title";
+
+        if (!$request->hasFile('cover')) {
+            $message .= " tanpa cover";
+        }
+
+        session()->flash("flash_notification", [
             'level' => 'success',
-            'message' => "Berhasil menyimpan $book->title"
+            'message' => $message
         ]);
 
         return redirect()->route('books.index');
     }
-
-
-    public function show(string $id)
-    {
-        //
-    }
-
 
     public function edit(string $id)
     {
@@ -144,16 +139,11 @@ class BooksController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        //
         $book = Book::find($id);
         $cover = $book->cover;
         if (!$book->delete()) return redirect()->back();
-
-        // handle hapus buku via ajax
         if ($request->ajax()) return response()->json(['id' => $id]);
 
-        // hapus cover lama, jika ada
-        // if ($book->cover) {
         if ($cover) {
             $old_cover = $book->cover;
             $filepath = public_path() . DIRECTORY_SEPARATOR . 'img'
@@ -162,7 +152,6 @@ class BooksController extends Controller
             try {
                 File::delete($filepath);
             } catch (FileNotFoundException $e) {
-                // File sudah dihapus/tidak ada
             }
         }
         $book->delete();
@@ -232,22 +221,16 @@ class BooksController extends Controller
     }
 
 
-    public function exportPost(Request $request)
+    public function exportPost(ExportRequest $request)
     {
-        $this->validate($request, [
-            'author_id' => 'required',
-            'type' => 'required|in:pdf,xls'
-        ], [
-            'author_id.required' => 'Anda Belum Memilih Penulis, Pilih Lah MInimal 1'
-        ]);
-        $books = Book::whereIn('id', $request->get('author_id'))->get();
+        $authorIds = $request->input('author_id');
+        $type = $request->input('type');
 
-        $handler = 'export' . ucfirst($request->get('type'));
+        $books = Book::whereIn('id', $authorIds)->get();
 
-        if ($request->get('type') == 'xls')
+        if ($type == 'xls') {
             return Excel::download(new BookExport($books), 'data_buku.xlsx');
-
-        elseif ($request->get('type') == 'pdf') {
+        } elseif ($type == 'pdf') {
             return $this->exportPdf($books);
         }
     }
@@ -263,9 +246,8 @@ class BooksController extends Controller
         return Excel::download(new bookTemplate(), 'template-buku.xls');
     }
 
-    public function importExcel(Request $request)
+    public function importExcel(ImportExcelRequest $request)
     {
-        $this->validate($request, ['excel' => 'required|mimes:xls,xlsx']);
         $excel = $request->file('excel');
         $excels = Excel::toArray(new BooksImport(), $excel)[0];
         $rowRules = [
@@ -278,10 +260,7 @@ class BooksController extends Controller
         foreach ($excels as $row) {
             $validator = Validator::make($row, $rowRules);
             if ($validator->fails()) continue;
-            $author = Author::where('name', $row['penulis'])->first();
-            if (!$author) {
-                $author = Author::create(['name' => $row['penulis']]);
-            }
+            $author = Author::firstOrCreate(['name' => $row['penulis']]);
             $book = Book::create([
                 'title' => $row['judul'],
                 'author_id' => $author->id,
@@ -292,19 +271,18 @@ class BooksController extends Controller
 
         $books = Book::whereIn('id', $books_id)->get();
         if ($books->count() == 0) {
-            Session::flash("flash_notification", [
+            session()->flash("flash_notification", [
                 "level" => "danger",
                 "message" => "Tidak ada buku yang berhasil diimport."
             ]);
             return redirect()->back();
         }
-        Session::flash("flash_notification", [
+
+        session()->flash("flash_notification", [
             "level" => "success",
             "message" => "Berhasil mengimport " . $books->count() . " buku."
         ]);
 
         return view('books.import-review')->with(compact('books'));
-
-        return $excels;
     }
 }

@@ -16,19 +16,19 @@ class AuthorsController extends Controller
         if ($request->ajax()) {
             $authors = Author::all();
             return DataTables::of($authors)
-                ->addColumn('action', function($author){
+                ->addColumn('action', function ($author) {
                     return view('datatable._action', [
                         'model' => $author,
                         'form_url' => route('authors.destroy', $author->id),
                         'edit_url' => route('authors.edit', $author->id),
-                        'confirm_message' => 'Apakah anda yakin ingin menghapus '.$author->name.'?'
+                        'confirm_message' => 'Apakah anda yakin ingin menghapus ' . $author->name . '?'
                     ]);
-                }) -> make(true);
+                })->make(true);
         }
 
         $html = $htmlBuilder
-            ->addColumn(['data' => 'name', 'name'=>'name', 'title'=>'Nama'])
-            ->addColumn(['data' => 'action', 'name'=>'action', 'title'=>'', 'orderable'=>false, '\searchable'=>false]);
+            ->addColumn(['data' => 'name', 'name' => 'name', 'title' => 'Nama'])
+            ->addColumn(['data' => 'action', 'name' => 'action', 'title' => '', 'orderable' => false, '\searchable' => false]);
 
         return view('authors.index')->with(compact('html'));
     }
@@ -60,19 +60,20 @@ class AuthorsController extends Controller
     {
         //
         $author = Author::find($id);
-        return view('authors.edit') -> with(compact('author'));
+        return view('authors.edit')->with(compact('author'));
     }
 
     public function update(Request $request, $id)
     {
-        //
         $this->validate($request, ['name' => 'required|unique:authors,name,' . $id]);
         $author = Author::find($id);
         $author->update($request->only('name'));
+
         Session::flash("flash_notification", [
             "level" => "success",
-            "message" => "Berhasil menyimpan $author->name"
+            "message" => $author->update_success_message,
         ]);
+
         return redirect()->route('authors.index');
     }
 
@@ -81,8 +82,8 @@ class AuthorsController extends Controller
         if (!Author::destroy($id)) return redirect()->back();
 
         Session::flash("flash_notification", [
-            "level"=>"success",
-            "message"=>"Penulis berhasil dihapus"
+            "level" => "success",
+            "message" => "Penulis berhasil dihapus"
         ]);
 
         return redirect()->route('authors.index');

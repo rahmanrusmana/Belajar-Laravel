@@ -15,11 +15,10 @@ class StoreBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'title' => 'required|unique:books,title',
+            'title' => 'required|unique:books|max:255',
             'author_id' => 'required|exists:authors,id',
-            'amount' => 'numeric',
-            'cover' => 'image|max:2048'
+            'amount' => 'required|integer|min:1',
+            'cover' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

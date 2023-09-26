@@ -10,7 +10,6 @@ use Laratrust\LaratrustFacade as Laratrust;
 
 class GuestController extends Controller
 {
-    //
     public function index(Request $request, Builder $htmlBuilder)
     {
         if ($request->ajax()) {
@@ -21,7 +20,6 @@ class GuestController extends Controller
                 })
                 ->addColumn('action', function ($book){
                     if (Laratrust::hasRole('admin')) return '';
-                    // return '<a class="btn btn-xs btn-primary" href="#">Pinjam</a>';
                     return '<a class="btn btn-xs btn-primary" href="'.route('guest.books.borrow', $book->id).'">Pinjam</a>';
                 })->make(true);
         }
