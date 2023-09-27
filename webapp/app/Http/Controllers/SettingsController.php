@@ -22,6 +22,7 @@ class SettingsController extends Controller
     {
         return view('settings.edit-profile');
     }
+    
     public function updateProfile(Request $request)
     {
         $user = Auth::user();

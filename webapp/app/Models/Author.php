@@ -12,6 +12,11 @@ class Author extends Model
 
     protected $fillable = ['name'];
 
+    public static function getAllAuthors()
+    {
+        return static::all();
+    }
+    
     public function books()
     {
         return $this->hasMany(Book::class);
@@ -41,6 +46,4 @@ class Author extends Model
     {
         return "Berhasil menyimpan $this->name";
     }
-
-    
 }

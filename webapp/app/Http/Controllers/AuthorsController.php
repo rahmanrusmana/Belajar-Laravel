@@ -4,26 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Author;
 use Yajra\DataTables\Html\Builder;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Controller;
+use App\Models\Author\AuthorTableFormatter;
+use App\Http\Requests\AuthorRequest;
+use App\Http\Requests\AuthorUpdateRequest;
 
 class AuthorsController extends Controller
 {
     public function index(Request $request, Builder $htmlBuilder)
     {
         if ($request->ajax()) {
-            $authors = Author::all();
-            return DataTables::of($authors)
-                ->addColumn('action', function ($author) {
-                    return view('datatable._action', [
-                        'model' => $author,
-                        'form_url' => route('authors.destroy', $author->id),
-                        'edit_url' => route('authors.edit', $author->id),
-                        'confirm_message' => 'Apakah anda yakin ingin menghapus ' . $author->name . '?'
-                    ]);
-                })->make(true);
+            $authors = Author::getAllAuthors();
+            return AuthorTableFormatter::format($authors);
         }
 
         $html = $htmlBuilder
@@ -38,10 +32,10 @@ class AuthorsController extends Controller
         return view('authors.create');
     }
 
-    public function store(Request $request)
+    public function store(AuthorRequest $request)
     {
-        $this->validate($request, ['name' => 'required|unique:authors']);
         $author = Author::create($request->all());
+
         Session::flash("flash_notification", [
             "level" => 'success',
             'message' => 'Berhasil menyimpan data ' . $author->name
@@ -63,9 +57,9 @@ class AuthorsController extends Controller
         return view('authors.edit')->with(compact('author'));
     }
 
-    public function update(Request $request, $id)
+    // UPDATE NAMA PENULIS
+    public function update(AuthorUpdateRequest $request, $id)
     {
-        $this->validate($request, ['name' => 'required|unique:authors,name,' . $id]);
         $author = Author::find($id);
         $author->update($request->only('name'));
 

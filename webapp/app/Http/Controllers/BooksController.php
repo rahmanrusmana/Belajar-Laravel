@@ -23,25 +23,21 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Author;
 use App\Http\Requests\ExportRequest;
 use App\Http\Requests\ImportExcelRequest;
+use App\Models\Book\BookTableFormatter;
+use App\Services\BookService;
 
 use Illuminate\Http\Request;
 
 class BooksController extends Controller
 {
+    // UNTUK MENAMPILKAN TAMPILAN BUKU
     public function index(Request $request, Builder $htmlBuilder)
     {
         if ($request->ajax()) {
-            $books = Book::with('author');
-            return DataTables::of($books)
-                ->addColumn('action', function ($book) {
-                    return view('datatable._action', [
-                        'model' => $book,
-                        'form_url' => route('books.destroy', $book->id),
-                        'edit_url' => route('books.edit', $book->id),
-                        'confirm_message' => 'Apakah Anda yakin ingin menghapus ' . $book->title . '?'
-                    ]);
-                })->make(true);
+            $books = Book::with('author')->get();
+            return BookTableFormatter::format($books);
         }
+
         $html = $htmlBuilder
             ->addColumn(['data' => 'title', 'name' => 'title', 'title' => 'Judul'])
             ->addColumn(['data' => 'amount', 'name' => 'amount', 'title' => 'Jumlah'])
@@ -58,74 +54,38 @@ class BooksController extends Controller
         return view('books.create');
     }
 
+    protected $bookService;
+
+    public function __construct(BookService $bookService)
+    {
+        $this->bookService = $bookService;
+    }
+
+    // UNTUK COVER BUKU
     public function store(StoreBookRequest $request)
     {
         $bookData = $request->except('cover');
+        $cover = $request->file('cover');
 
-        if ($request->hasFile('cover')) {
-            $uploadedCover = $request->file('cover');
-            $extension = $uploadedCover->getClientOriginalExtension();
-            $filename = md5(time()) . '.' . $extension;
-
-            $destinationPath = public_path('img');
-            $uploadedCover->move($destinationPath, $filename);
-
-            $bookData['cover'] = $filename;
-        }
-
-        $book = Book::create($bookData);
-
-        $message = "Berhasil menyimpan $book->title";
-
-        if (!$request->hasFile('cover')) {
-            $message .= " tanpa cover";
-        }
-
-        session()->flash("flash_notification", [
-            'level' => 'success',
-            'message' => $message
-        ]);
+        $book = $this->bookService->storeBook($bookData, $cover);
 
         return redirect()->route('books.index');
     }
 
+    // UNTUK MENGEFIT BUKU
     public function edit(string $id)
     {
-
         $book = Book::find($id);
         return view('books.edit')->with(compact('book'));
     }
 
-
+    // UNTUK UPDATE BUKU
     public function update(UpdateBookRequest $request, $id)
     {
         $book = Book::find($id);
-        if (!$book->update($request->all())) return redirect()->back();
 
-        if ($request->hasFile('cover')) {
-            $filename = null;
-            $uploaded_cover = $request->file('cover');
-            $exetension = $uploaded_cover->getClientOriginalExtension();
-
-            $filename = md5(time()) . '.' . $exetension;
-            $destinationPath = public_path() . DIRECTORY_SEPARATOR . 'img';
-
-            $uploaded_cover->move($destinationPath, $filename);
-
-            if ($book->cover) {
-                $old_cover =  $book->cover;
-                $filepath = public_path() . DIRECTORY_SEPARATOR . 'img'
-                    . DIRECTORY_SEPARATOR . $book->cover;
-
-                try {
-                    File::delete($filepath);
-                } catch (FileNotFoundException $e) {
-                    // file sudah di hapus tidak ada
-                }
-            }
-
-            $book->cover = $filename;
-            $book->save();
+        if (!$this->bookService->updateBook($book, $request->all(), $request->file('cover'))) {
+            return redirect()->back();
         }
 
         Session::flash("flash_notification", [
@@ -136,7 +96,7 @@ class BooksController extends Controller
         return redirect()->route('books.index');
     }
 
-
+    // UNTUK DELETE BUKU
     public function destroy(Request $request, string $id)
     {
         $book = Book::find($id);
@@ -164,6 +124,7 @@ class BooksController extends Controller
         return redirect()->route('books.index');
     }
 
+    // UNTUK USER MEMINJAM BUKU
     public function borrow($id)
     {
         if (Auth::user() != null) {
@@ -196,6 +157,7 @@ class BooksController extends Controller
         }
     }
 
+    // UNTUK PENGEMBALIAAN BUKU
     public function returnBack($book_id)
     {
         $borrowLog = BorrowLog::where('user_id', Auth::user()->id)
@@ -246,6 +208,7 @@ class BooksController extends Controller
         return Excel::download(new bookTemplate(), 'template-buku.xls');
     }
 
+    // IMPORT EXCEL
     public function importExcel(ImportExcelRequest $request)
     {
         $excel = $request->file('excel');

@@ -19,45 +19,28 @@ class User extends Authenticatable implements LaratrustUser
 {
     use HasApiTokens, HasFactory, Notifiable, HasRolesAndPermissions;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_verified' => 'boolean'
     ];
-    
+
     public function borrow(Book $book)
     {
-        // Cek Apakah Masih Ada Stok Buku
         if($book->stock < 1 ) {
             throw new BookException("Buku $book->title Sedang Tidak Tersedia");
         }
-        // cek apakah buku ini sedang dipinjam oleh user
         if($this->borrowLogs()->where('book_id',$book->id)->where('is_returned', 0)->count() > 0 ) {
             throw new BookException("Buku $book->title sedang Anda pinjam.");
         }
@@ -86,9 +69,6 @@ class User extends Authenticatable implements LaratrustUser
     {
         $token = $this->generateVerificationToken();
         $user = $this;
-        // $token = Str::random(40);
-        // $user->verification_token = $token;
-        // $user->save();
         Mail::send('auth.emails.verification', compact('user', 'token'), function ($m) use ($user){
             $m->to($user->email, $user->name)->subject('Verifikasi Akun Larapus');
         });

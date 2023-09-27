@@ -17,7 +17,7 @@ use Illuminate\Support\HtmlString;
 
 class MembersController extends Controller
 {
-   
+
     public function index(Request $request, Builder $htmlBuilder)
     {
         if ($request->ajax()) {
